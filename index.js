@@ -30,6 +30,8 @@ io.on("connection", (socket) => {
       return callback(error);
     }
 
+    socket.join(user.room);
+
     socket.emit("message", {
       user: "Admin",
       text: `Hey ${user.name}! Welcome to ${user.room}`,
@@ -38,8 +40,6 @@ io.on("connection", (socket) => {
     socket.broadcast
       .to(user.room)
       .emit("message", { user: "Admin", text: `${user.name} has joined!` });
-
-    socket.join(user.room);
 
     io.to(user.room).emit("roomData", {
       room: user.room,
@@ -52,11 +52,9 @@ io.on("connection", (socket) => {
   socket.on("sendMessage", (message, callback) => {
     const user = getUser(socket.id);
 
-    io.to(user.room).emit("message", { user: user.name, text: message });
-    io.to(user.room).emit("roomData", {
-      room: user.room,
-      users: getUsersInRoom(user.room),
-    });
+    if (user) {
+      io.to(user.room).emit("message", { user: user.name, text: message });
+    }
 
     callback();
   });
@@ -69,6 +67,11 @@ io.on("connection", (socket) => {
       io.to(user.room).emit("message", {
         user: "Admin",
         text: `${user.name} has left!`,
+      });
+
+      io.to(user.room).emit("roomData", {
+        room: user.room,
+        users: getUsersInRoom(user.room),
       });
     }
   });

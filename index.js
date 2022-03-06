@@ -35,11 +35,14 @@ io.on("connection", (socket) => {
     socket.emit("message", {
       user: "Admin",
       text: `Hey ${user.name}! Welcome to ${user.room}`,
+      color: "gray",
     });
 
-    socket.broadcast
-      .to(user.room)
-      .emit("message", { user: "Admin", text: `${user.name} has joined!` });
+    socket.broadcast.to(user.room).emit("message", {
+      user: "Admin",
+      text: `${user.name} has joined!`,
+      color: "green",
+    });
 
     io.to(user.room).emit("roomData", {
       room: user.room,
@@ -61,14 +64,16 @@ io.on("connection", (socket) => {
   });
 
   socket.on("disconnect", () => {
-    console.log("User has left");
     const user = removeUser(socket.id);
 
     if (user) {
       io.to(user.room).emit("message", {
         user: "Admin",
         text: `${user.name} has left!`,
+        color: "yellow",
       });
+
+      console.log(`${user.name} has left!`);
 
       io.to(user.room).emit("roomData", {
         room: user.room,

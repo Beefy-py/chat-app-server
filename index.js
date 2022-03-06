@@ -24,7 +24,7 @@ io.on("connection", (socket) => {
   socket.on("join", ({ name, room }, callback) => {
     const { error, user } = addUser({ id: socket.id, name, room });
 
-    console.log(error);
+    console.log(`error`, error);
 
     if (error) {
       return callback(error);
@@ -54,6 +54,7 @@ io.on("connection", (socket) => {
 
     if (user) {
       io.to(user.room).emit("message", { user: user.name, text: message });
+      console.log(`${user.name} is sending message...`);
     }
 
     callback();
